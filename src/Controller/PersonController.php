@@ -24,15 +24,40 @@ class PersonController extends AbstractController
     {
         $data = json_decode($request->getContent(),true);
         $person = new Person();
-        $person->setFirstname('Ali');
-        $person->setName('SALAH');
-        $person->setAge(28);
-        $person->setNo('698');
+        $person->setFirstname($data['firstName']);
+        $person->setName($data['name']);
+        $person->setAge($data['age']);
+        $person->setNo($data['no']);
+        $person->setJob($data['job']);
         $personService->addPerson($person);
         $this->addFlash('success', 'Person Successfully created');
-        return $this->render('person/index.html.twig', [
+        /**return $this->render('person/index.html.twig', [
             'controller_name' => 'PersonController',
-        ]);
+        ]);*/
+        return $this->json(['message' => 'Person Successfully Created!'], 200);
+    }
+    #[Route('/update/{id<\d+>}', name: "app_person_update", methods:['PUT'])]
+    public function updatePerson(Request $request, Person $person, PersonService $personService) : Response
+    {
+        $data = json_decode($request->getContent(), true);
+        //$id = $request->get('id');
+        $personService->updatePerson($person,$data);
+        return $this->json(['message' => 'Person Successfully Updated!'],200);
+    }
+
+    #[Route('/all', name: 'app_person_list', methods:['GET'])]
+    public function listPersons (Request $request, PersonService $personService) : Response
+    {
+        $persons = $personService->getAllPersons();
+        return $this->json($persons, 200);
+    }
+
+    #[Route('/remove/{id<\d+>}', name: 'app_person_remove', methods:['DELETE'])]
+    public function removePerson (Request $request, PersonService $personService): Response
+    {
+        $idPerson = $request->get('id');
+        $personService->deletePerson($idPerson);
+        return $this->json(['message' => "Person with ID: $idPerson Deleted!"], 200);
     }
 
 }
