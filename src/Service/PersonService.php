@@ -67,4 +67,15 @@ class PersonService{
             return false;
         }
     }
+
+    public function findPersons(int $page, int $count, string $orderColumn, string $orderChoice) : array|bool 
+    {
+        try{
+            $persons = $this->entityManager->getRepository(Person::class)->findPersonsByPage($page, $count, $orderColumn, $orderChoice);
+            return $persons;
+        }catch(Exception $e){
+            var_dump($e->getMessage());
+            return [];
+        }
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Person;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use PDO;
 
 /**
  * @extends ServiceEntityRepository<Person>
@@ -16,6 +17,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class PersonRepository extends ServiceEntityRepository
 {
+    public const TABLE_PERSON = "person";
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Person::class);
@@ -63,4 +65,16 @@ class PersonRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+public function findPersonsByPage(int $page, int $count, string $orderCol, string $corderChoice) 
+{
+    $offset = $page * $count;
+
+    $connection =  $this->getEntityManager()->getConnection();
+    $query = "SELECT * FROM " . self::TABLE_PERSON
+             . " ORDER BY " . $orderCol . " " . $corderChoice
+             . " LIMIT " . $count . " OFFSET " . $offset;
+             var_dump($query);
+    $data = $connection->executeQuery($query)->fetchAllAssociative();
+    return $data;
+}
 }

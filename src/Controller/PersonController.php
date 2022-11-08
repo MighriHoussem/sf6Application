@@ -59,5 +59,15 @@ class PersonController extends AbstractController
         $personService->deletePerson($idPerson);
         return $this->json(['message' => "Person with ID: $idPerson Deleted!"], 200);
     }
+    #[Route('/findPersons', name: 'app_person_find', methods:['GET'])]
+    public function findPersons (Request $request, PersonService $personService) : Response
+    {
+        $page = $request->query->get('page',0);
+        $nbElements = $request->query->get('count',25);
+        $orderBy = $request->query->get('orderColumn','age');
+        $orderChoice = $request->query->get('orderChoice','ASC');
+        $persons = $personService->findPersons($page, $nbElements, $orderBy, $orderChoice);
+        return $this->json($persons, 200);
+    }
 
 }
