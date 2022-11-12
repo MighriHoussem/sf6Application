@@ -3,9 +3,15 @@
 namespace App\Entity;
 
 use App\Repository\PersonRepository;
+use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 
 #[ORM\Entity(repositoryClass: PersonRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Person
 {
     #[ORM\Id]
@@ -27,6 +33,26 @@ class Person
 
     #[ORM\Column(length: 255)]
     private ?string $no = null;
+
+    #[ORM\OneToOne(inversedBy: 'person', cascade: ['persist', 'remove'])]
+    private ?Profil $profil = null;
+
+    #[ORM\ManyToMany(targetEntity: Hobby::class)]
+    private ?Collection $hobbies;
+
+    #[ORM\ManyToOne(inversedBy: 'people')]
+    private ?Job $personJob = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $updatedAt = null;
+
+    public function __construct()
+    {
+        $this->hobbies = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -91,5 +117,88 @@ class Person
         $this->no = $no;
 
         return $this;
+    }
+
+    public function getProfil(): ?Profil
+    {
+        return $this->profil;
+    }
+
+    public function setProfil(?Profil $profil): self
+    {
+        $this->profil = $profil;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Hobby>
+     */
+    public function getHobbies(): Collection
+    {
+        return $this->hobbies;
+    }
+
+    public function addHobby(Hobby $hobby): self
+    {
+        if (!$this->hobbies->contains($hobby)) {
+            $this->hobbies->add($hobby);
+        }
+
+        return $this;
+    }
+
+    public function removeHobby(Hobby $hobby): self
+    {
+        $this->hobbies->removeElement($hobby);
+
+        return $this;
+    }
+
+    public function getPersonJob(): ?Job
+    {
+        return $this->personJob;
+    }
+
+    public function setPersonJob(?Job $personJob): self
+    {
+        $this->personJob = $personJob;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function onPrePersist() {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new DateTime();
+    }
+    
+    #[ORM\PreUpdate]
+    public function onPreUpdate(){
+        $this->updatedAt = new DateTime();
     }
 }

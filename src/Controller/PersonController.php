@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Person;
 use App\Service\PersonService;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,12 +38,19 @@ class PersonController extends AbstractController
         return $this->json(['message' => 'Person Successfully Created!'], 200);
     }
     #[Route('/update/{id<\d+>}', name: "app_person_update", methods:['PUT'])]
-    public function updatePerson(Request $request, Person $person, PersonService $personService) : Response
+    public function updatePerson(Request $request, PersonService $personService) : Response
     {
-        $data = json_decode($request->getContent(), true);
-        //$id = $request->get('id');
-        $personService->updatePerson($person,$data);
-        return $this->json(['message' => 'Person Successfully Updated!'],200);
+        try{
+            $data = json_decode($request->getContent(), true);
+            $id = $request->get('id');
+            $personService->updatePerson($id,$data);
+            return $this->json(['message' => 'Person Successfully Updated!'],200);
+        }catch(Exception $ex){
+            return $this->json([
+                'error' => $ex->getMessage()
+            ], 500);
+        }
+
     }
 
     #[Route('/all', name: 'app_person_list', methods:['GET'])]
@@ -68,6 +76,12 @@ class PersonController extends AbstractController
         $orderChoice = $request->query->get('orderChoice','ASC');
         $persons = $personService->findPersons($page, $nbElements, $orderBy, $orderChoice);
         return $this->json($persons, 200);
+    }
+
+    #[Route('/{id}', name: '$app_person_get', methods:['GET'])]
+    public function getPerson(Request $request, Person $person): Response
+    {
+        return $this->json($person, 200);
     }
 
 }

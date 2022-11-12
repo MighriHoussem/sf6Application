@@ -26,12 +26,12 @@ class PersonService{
         }
     }
 
-    public function updatePerson(?Person $findPerson = null, ?array $data = []) : bool
+    public function updatePerson(int $id, ?array $data = []) : bool
     {
         try{
-            //$personRepository = $this->entityManager->getRepository(Person::class);
-            //$findPerson = $personRepository->findOneBy(['id' => $id]);
-            $findPerson->setFirstname($data['firstName']);
+            $personRepository = $this->entityManager->getRepository(Person::class);
+            $findPerson = $personRepository->find($id);
+            $findPerson->setFirstname($data['firstname']);
             $findPerson->setAge($data['age']);
             $findPerson->setName($data['name']);
             $findPerson->setJob($data['job']);
