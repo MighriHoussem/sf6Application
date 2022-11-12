@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\JobRepository;
+use App\Traits\TimesTampTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -10,6 +11,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: JobRepository::class)]
 class Job
 {
+
+    //TimestampTrait used to have createdAt && updatedAt columns && Doctrine LifeCycle
+    use TimesTampTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

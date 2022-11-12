@@ -3,10 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\PersonRepository;
-use DateTime;
+use App\Traits\TimestampTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 
@@ -14,6 +13,10 @@ use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 #[ORM\HasLifecycleCallbacks]
 class Person
 {
+
+    //TimestampTrait used to have createdAt && updatedAt columns && Doctrine LifeCycle
+    use TimesTampTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -38,16 +41,11 @@ class Person
     private ?Profil $profil = null;
 
     #[ORM\ManyToMany(targetEntity: Hobby::class)]
-    private ?Collection $hobbies;
+    private Collection $hobbies;
 
     #[ORM\ManyToOne(inversedBy: 'people')]
     private ?Job $personJob = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $createdAt = null;
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $updatedAt = null;
 
     public function __construct()
     {
@@ -165,40 +163,5 @@ class Person
         $this->personJob = $personJob;
 
         return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(?\DateTimeImmutable $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
-    #[ORM\PrePersist]
-    public function onPrePersist() {
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new DateTime();
-    }
-    
-    #[ORM\PreUpdate]
-    public function onPreUpdate(){
-        $this->updatedAt = new DateTime();
     }
 }

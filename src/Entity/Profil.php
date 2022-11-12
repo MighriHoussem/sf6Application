@@ -3,11 +3,18 @@
 namespace App\Entity;
 
 use App\Repository\ProfilRepository;
+use App\Traits\TimesTampTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProfilRepository::class)]
 class Profil
 {
+
+
+    //TimestampTrait used to have createdAt && updatedAt columns && Doctrine LifeCycle
+    use TimesTampTrait;
+
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

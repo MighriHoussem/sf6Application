@@ -3,11 +3,17 @@
 namespace App\Entity;
 
 use App\Repository\HobbyRepository;
+use App\Traits\TimesTampTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: HobbyRepository::class)]
 class Hobby
 {
+
+
+    //TimestampTrait used to have createdAt && updatedAt columns && Doctrine LifeCycle
+    use TimesTampTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
