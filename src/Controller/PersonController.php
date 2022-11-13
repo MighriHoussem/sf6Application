@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Person;
+use App\Form\PersonType;
 use App\Service\PersonService;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -78,10 +79,33 @@ class PersonController extends AbstractController
         return $this->json($persons, 200);
     }
 
-    #[Route('/{id}', name: '$app_person_get', methods:['GET'])]
+    #[Route('/{id}', name: 'app_person_get', methods:['GET'])]
     public function getPerson(Request $request, Person $person): Response
     {
         return $this->json($person, 200);
+    }
+
+    #[Route('/form/edit/{id<\d+>?ooooo}', name: 'person.add', methods:['GET', 'POST'])]
+    public function addAction(Request $request,?Person $person, PersonService $personService): Response
+    {
+        if(!$person){
+            $person = new Person();
+        }
+
+        $form = $this->createForm(PersonType::class, $person);
+        //remove un used form inputs
+        $form->remove('createdAt');
+        $form->remove('updatedAt');
+            
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+        //$data = $form->getData();
+            $personService->addPerson($person);
+        $this->addFlash('success', "Person Added!");
+            return $this->redirectToRoute('person.add');
+        } else {
+        return $this->render('person/add-person.html.twig', ['form' => $form->createView()]);
+        }
     }
 
 }

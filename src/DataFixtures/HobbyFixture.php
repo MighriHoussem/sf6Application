@@ -14,7 +14,10 @@ class HobbyFixture extends Fixture
             "music",
             "sport",
             "cinema",
-            "theater"
+            "theater",
+            "sky diving",
+            "motors",
+            "driving"
         ];
         foreach($hobbies as $h){
             $hobby = new Hobby();
