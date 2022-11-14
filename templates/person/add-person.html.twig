@@ -19,7 +19,7 @@
 {% endfor %}
     <h1>Add Person Form ✅</h1>
     <div id="person-form">
-    {{ form_start(form) }}
+    {{ form_start(form, {attr: {'noValidate': 'noValidate'}}) }}
     <div class="row">
         <span class="col">{{ form_row(form.firstname)}}</span>
         <span class="col">{{ form_row(form.name)}}</span>
