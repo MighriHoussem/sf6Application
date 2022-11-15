@@ -88,8 +88,8 @@ class PersonController extends AbstractController
         return $this->json($person, 200);
     }
 
-    #[Route('/form/edit/{id<\d+>?ooooo}', name: 'person.add', methods:['GET', 'POST'])]
-    public function addAction(Request $request,?Person $person, PersonService $personService, SluggerInterface $slugger): Response
+    #[Route('/form/edit/{id<\d+>?0}', name: 'person.add', methods:['GET', 'POST'])]
+    public function addAction(Request $request,?Person $person = null, PersonService $personService, SluggerInterface $slugger): Response
     {
         if(!$person){
             $person = new Person();

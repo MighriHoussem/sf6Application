@@ -19,9 +19,11 @@ class PersonService{
         try{
             $this->entityManager->persist($person);
             $this->entityManager->flush();
+            var_dump("added");
             return true;
             //$this->entityManager->getRepository(Person::class)->findAll();
         }catch(Exception $e){
+            var_dump($e->getMessage());
             return false;
         }
     }

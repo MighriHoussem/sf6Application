@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Hobby;
+use App\Entity\Job;
 use App\Entity\Person;
 use App\Entity\Profil;
 use Doctrine\ORM\EntityRepository;
@@ -29,7 +30,7 @@ class PersonType extends AbstractType
             ->add('profil', EntityType::class, [
                 'expanded' => true,
                 'multiple' => false,
-                'class' => Profil::class
+                'class' => Profil::class,
             ])
             ->add('hobbies', EntityType::class, [
                 'expanded' => true,
@@ -64,7 +65,15 @@ class PersonType extends AbstractType
                     ])
                 ],
             ])
-            ->add('personJob')
+            ->add('personJob',EntityType::class, [
+                'expanded' => false,
+                'multiple' => false,
+                'required' => false,
+                'class' => Job::class,
+                'attr' => [
+                    'class' => 'select2'
+                ]
+            ])
             ->add('Valider',SubmitType::class);
         ;
     }
