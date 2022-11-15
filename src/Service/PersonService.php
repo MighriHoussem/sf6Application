@@ -4,31 +4,30 @@ namespace App\Service;
 use App\Entity\Person;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 
 class PersonService{
 
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $Manager)
+    public function __construct(ManagerRegistry $Manager)
     {
-        $this->entityManager = $Manager;
+        $this->entityManager = $Manager->getManager();
     }
     public function addPerson (Person $person) : bool 
     {
         try{
             $this->entityManager->persist($person);
             $this->entityManager->flush();
-            var_dump("added");
             return true;
             //$this->entityManager->getRepository(Person::class)->findAll();
         }catch(Exception $e){
-            var_dump($e->getMessage());
-            return false;
+            throw $e;
         }
     }
 
-    public function updatePerson(int $id, ?array $data = []) : bool
+    public function updatePerson(int $id, ?array $data = []) : bool|Exception
     {
         try{
             $personRepository = $this->entityManager->getRepository(Person::class);
@@ -41,17 +40,17 @@ class PersonService{
             $this->entityManager->flush();
             return true;
         }catch(Exception $e){
-            return false;
+            throw $e;
         }
     }
 
-    public function getAllPersons () : array|bool
+    public function getAllPersons () : array|Exception
     {
         try{
             $persons = $this->entityManager->getRepository(Person::class)->findAll();
             return $persons;
         }catch(Exception $ex){
-            return [];
+            throw $ex;
         }
 
     }
@@ -66,18 +65,17 @@ class PersonService{
             }
             return true;
         }catch(Exception $ex){
-            return false;
+            throw $ex;
         }
     }
 
-    public function findPersons(int $page, int $count, string $orderColumn, string $orderChoice) : array|bool 
+    public function findPersons(int $page, int $count, string $orderColumn, string $orderChoice) : array|bool|Exception
     {
         try{
             $persons = $this->entityManager->getRepository(Person::class)->findPersonsByPage($page, $count, $orderColumn, $orderChoice);
             return $persons;
         }catch(Exception $e){
-            var_dump($e->getMessage());
-            return [];
+            throw $e;
         }
     }
 }
