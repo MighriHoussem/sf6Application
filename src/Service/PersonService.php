@@ -7,7 +7,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 
-class PersonService{
+class PersonService
+{
 
     private $entityManager;
 
@@ -15,21 +16,21 @@ class PersonService{
     {
         $this->entityManager = $Manager->getManager();
     }
-    public function addPerson (Person $person) : bool 
+    public function addPerson(Person $person): bool
     {
-        try{
+        try {
             $this->entityManager->persist($person);
             $this->entityManager->flush();
             return true;
             //$this->entityManager->getRepository(Person::class)->findAll();
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw $e;
         }
     }
 
-    public function updatePerson(int $id, ?array $data = []) : bool|Exception
+    public function updatePerson(int $id, ?array $data = []): bool|Exception
     {
-        try{
+        try {
             $personRepository = $this->entityManager->getRepository(Person::class);
             $findPerson = $personRepository->find($id);
             $findPerson->setFirstname($data['firstname']);
@@ -39,42 +40,42 @@ class PersonService{
             $findPerson->setNo($data['no']);
             $this->entityManager->flush();
             return true;
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw $e;
         }
     }
 
-    public function getAllPersons () : array|Exception
+    public function getAllPersons(): array |Exception
     {
-        try{
+        try {
             $persons = $this->entityManager->getRepository(Person::class)->findAll();
             return $persons;
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             throw $ex;
         }
 
     }
 
-    public function deletePerson (int $idPerson): bool
+    public function deletePerson(int $idPerson): bool
     {
-        try{
+        try {
             $person = $this->entityManager->getRepository(Person::class)->find($idPerson);
-            if($person){
+            if ($person) {
                 $this->entityManager->remove($person);
                 $this->entityManager->flush();
             }
             return true;
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             throw $ex;
         }
     }
 
-    public function findPersons(int $page, int $count, string $orderColumn, string $orderChoice) : array|bool|Exception
+    public function findPersons(int $page, int $count, string $orderColumn, string $orderChoice): array |bool|Exception
     {
-        try{
+        try {
             $persons = $this->entityManager->getRepository(Person::class)->findPersonsByPage($page, $count, $orderColumn, $orderChoice);
             return $persons;
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw $e;
         }
     }
