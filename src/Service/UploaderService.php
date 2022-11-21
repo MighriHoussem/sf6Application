@@ -12,7 +12,6 @@ class UploaderService
 {
     public function __construct(private SluggerInterface $slugger)
     {
-
     }
 
     public function uploadFile(UploadedFile $uploadedFile, string $targetDirectory): string|Exception

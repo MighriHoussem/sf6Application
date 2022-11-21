@@ -28,3 +28,5 @@ services:
             - entityManager: "@doctrine.orm.entity_manager"
     app.file.uploader.file:
         class: App\Service\UploaderService
+    app.mailer.service:
+        class: App\Service\MailerService

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Person;
 use App\Form\PersonType;
+use App\Service\MailerService;
 use App\Service\PersonService;
 use App\Service\UploaderService;
 use Exception;
@@ -27,7 +28,7 @@ class PersonController extends AbstractController
     #[Route('/create', name: 'app_person_create', methods:['POST', 'PUT'])]
     public function create(Request $request, PersonService $personService): Response
     {
-        $data = json_decode($request->getContent(),true);
+        $data = json_decode($request->getContent(), true);
         $person = new Person();
         $person->setFirstname($data['firstName']);
         $person->setName($data['name']);
@@ -42,42 +43,41 @@ class PersonController extends AbstractController
         return $this->json(['message' => 'Person Successfully Created!'], 200);
     }
     #[Route('/update/{id<\d+>}', name: "app_person_update", methods:['PUT'])]
-    public function updatePerson(Request $request, PersonService $personService) : Response
+    public function updatePerson(Request $request, PersonService $personService): Response
     {
-        try{
+        try {
             $data = json_decode($request->getContent(), true);
             $id = $request->get('id');
-            $personService->updatePerson($id,$data);
-            return $this->json(['message' => 'Person Successfully Updated!'],200);
-        }catch(Exception $ex){
+            $personService->updatePerson($id, $data);
+            return $this->json(['message' => 'Person Successfully Updated!'], 200);
+        } catch(Exception $ex) {
             return $this->json([
                 'error' => $ex->getMessage()
             ], 500);
         }
-
     }
 
     #[Route('/all', name: 'app_person_list', methods:['GET'])]
-    public function listPersons (Request $request, PersonService $personService) : Response
+    public function listPersons(Request $request, PersonService $personService): Response
     {
         $persons = $personService->getAllPersons();
         return $this->json($persons, 200);
     }
 
     #[Route('/remove/{id<\d+>}', name: 'app_person_remove', methods:['DELETE'])]
-    public function removePerson (Request $request, PersonService $personService): Response
+    public function removePerson(Request $request, PersonService $personService): Response
     {
         $idPerson = $request->get('id');
         $personService->deletePerson($idPerson);
         return $this->json(['message' => "Person with ID: $idPerson Deleted!"], 200);
     }
     #[Route('/findPersons', name: 'app_person_find', methods:['GET'])]
-    public function findPersons (Request $request, PersonService $personService) : Response
+    public function findPersons(Request $request, PersonService $personService): Response
     {
-        $page = $request->query->get('page',0);
-        $nbElements = $request->query->get('count',25);
-        $orderBy = $request->query->get('orderColumn','age');
-        $orderChoice = $request->query->get('orderChoice','ASC');
+        $page = $request->query->get('page', 0);
+        $nbElements = $request->query->get('count', 25);
+        $orderBy = $request->query->get('orderColumn', 'age');
+        $orderChoice = $request->query->get('orderChoice', 'ASC');
         $persons = $personService->findPersons($page, $nbElements, $orderBy, $orderChoice);
         return $this->json($persons, 200);
     }
@@ -89,9 +89,14 @@ class PersonController extends AbstractController
     }
 
     #[Route('/form/edit/{id<\d+>?0}', name: 'person.add', methods:['GET', 'POST'])]
-    public function addAction(Request $request,?Person $person = null, PersonService $personService, UploaderService $uploaderService): Response
-    {
-        if(!$person){
+    public function addAction(
+        Request $request,
+        ?Person $person = null,
+        PersonService $personService,
+        UploaderService $uploaderService,
+        MailerService $mailerService
+    ): Response {
+        if (!$person) {
             $person = new Person();
         }
 
@@ -99,23 +104,23 @@ class PersonController extends AbstractController
         //remove un used form inputs
         $form->remove('createdAt');
         $form->remove('updatedAt');
-            
+
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var UploadedFile $image */
-        $imageFile = $form->get('image')->getData();
-        //upload file using uploaderFile Service
-        if($imageFile){
-            $newFilename = $uploaderService->uploadFile($imageFile, $this->getParameter('person_directory'));
-            $person->setImage($newFilename);
-        }
-        //$data = $form->getData();
+            $imageFile = $form->get('image')->getData();
+            //upload file using uploaderFile Service
+            if ($imageFile) {
+                $newFilename = $uploaderService->uploadFile($imageFile, $this->getParameter('person_directory'));
+                $person->setImage($newFilename);
+            }
+            //$data = $form->getData();
             $personService->addPerson($person);
-        $this->addFlash('success', "Person Added!");
+            $this->addFlash('success', "Person Added!");
+            $mailerService->sendMail();
             return $this->redirectToRoute('person.add');
         } else {
-        return $this->render('person/add-person.html.twig', ['form' => $form->createView()]);
+            return $this->render('person/add-person.html.twig', ['form' => $form->createView()]);
         }
     }
-
 }
