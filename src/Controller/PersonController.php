@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Person;
 use App\Form\PersonType;
 use App\Service\MailerService;
+use App\Service\PDFService;
 use App\Service\PersonService;
 use App\Service\UploaderService;
 use Exception;
@@ -91,10 +92,10 @@ class PersonController extends AbstractController
     #[Route('/form/edit/{id<\d+>?0}', name: 'person.add', methods:['GET', 'POST'])]
     public function addAction(
         Request $request,
-        ?Person $person = null,
         PersonService $personService,
         UploaderService $uploaderService,
-        MailerService $mailerService
+        MailerService $mailerService,
+        ?Person $person = null,
     ): Response {
         if (!$person) {
             $person = new Person();
@@ -122,5 +123,17 @@ class PersonController extends AbstractController
         } else {
             return $this->render('person/add-person.html.twig', ['form' => $form->createView()]);
         }
+    }
+
+    #[Route('/pdf/create', name:'person.create.pdf')]
+    public function createPDF(Request $request, PDFService $pDFService): Response
+    {
+        $html = $this->render('person/index.html.twig', [
+            'controller_name' => 'PersonController',
+        ]);
+        $pDFService->showPDF($html);
+        return $this->render('person/index.html.twig', [
+            'controller_name' => 'PersonController',
+        ]);
     }
 }

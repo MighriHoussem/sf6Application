@@ -7,13 +7,15 @@ use Symfony\Component\Mime\Email;
 
 class MailerService
 {
-    public function __construct(private MailerInterface $mailerInterface)
+    public function __construct(private MailerInterface $mailerInterface, private $appMail)
     {
+        var_dump($this->appMail);
     }
 
     public function sendMail(): void
     {
         $email = (new Email())
+                    ->from($this->appMail)
                     ->to('you@example.com')
                     //->cc('cc@example.com')
                     //->bcc('bcc@example.com')
