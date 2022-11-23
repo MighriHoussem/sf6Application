@@ -9,12 +9,14 @@ use App\Service\PDFService;
 use App\Service\PersonService;
 use App\Service\UploaderService;
 use Exception;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 #[Route('/person')]
 class PersonController extends AbstractController
@@ -108,6 +110,9 @@ class PersonController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            //get user connected
+            $user = $this->getUser();
+            $person->setCreatedBy($user);
             /** @var UploadedFile $image */
             $imageFile = $form->get('image')->getData();
             //upload file using uploaderFile Service
@@ -125,9 +130,14 @@ class PersonController extends AbstractController
         }
     }
 
-    #[Route('/pdf/create', name:'person.create.pdf')]
+    #[Route('/pdf/create', name:'person.create.pdf'), IsGranted('ROLE_ADMIN')]
     public function createPDF(Request $request, PDFService $pDFService): Response
     {
+        //check is granted user by role OR check with php attributes
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            throw new AccessDeniedException();
+        }
+
         $html = $this->render('person/index.html.twig', [
             'controller_name' => 'PersonController',
         ]);

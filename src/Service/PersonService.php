@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Service;
 
 use App\Entity\Person;
@@ -6,19 +7,22 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use Symfony\Component\Security\Core\Security;
 
 class PersonService
 {
-
     private $entityManager;
 
-    public function __construct(ManagerRegistry $Manager)
+    public function __construct(ManagerRegistry $Manager, private Security $security)
     {
         $this->entityManager = $Manager->getManager();
     }
     public function addPerson(Person $person): bool
     {
         try {
+            if (!$person->getCreatedBy()) {
+                $person->setCreatedBy($this->security->getUser());
+            }
             $this->entityManager->persist($person);
             $this->entityManager->flush();
             return true;
@@ -53,7 +57,6 @@ class PersonService
         } catch (Exception $ex) {
             throw $ex;
         }
-
     }
 
     public function deletePerson(int $idPerson): bool

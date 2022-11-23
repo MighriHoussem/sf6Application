@@ -14,7 +14,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\HasLifecycleCallbacks]
 class Person
 {
-
     //TimestampTrait used to have createdAt && updatedAt columns && Doctrine LifeCycle
     use TimesTampTrait;
 
@@ -51,6 +50,9 @@ class Person
 
     #[ORM\Column(length: 255)]
     private ?string $image = null;
+
+    #[ORM\ManyToOne(inversedBy: 'people')]
+    private ?User $createdBy = null;
 
 
     public function __construct()
@@ -179,6 +181,18 @@ class Person
     public function setImage(string $image): self
     {
         $this->image = $image;
+
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): self
+    {
+        $this->createdBy = $createdBy;
 
         return $this;
     }

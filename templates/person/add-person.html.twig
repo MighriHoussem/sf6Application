@@ -9,6 +9,13 @@
 </style>
 
 <div class="example-wrapper">
+<div id="authenticated_user">
+{% if(app.user) %}
+<h5>You are authenticated as {{app.user.email}}</h5>
+{% else %}
+<h5>You are authenticated as Anonymous</h5>
+{% endif %}
+</div>
 {# read and display all flash messages #}
 {% for label, messages in app.flashes %}
     {% for message in messages %}
