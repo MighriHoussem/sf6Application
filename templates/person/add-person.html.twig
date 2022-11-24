@@ -10,7 +10,7 @@
 
 <div class="example-wrapper">
 <div id="authenticated_user">
-{% if(app.user) %}
+{% if(app.user and is_granted('ROLE_ADMIN')) %}
 <h5>You are authenticated as {{app.user.email}}</h5>
 {% else %}
 <h5>You are authenticated as Anonymous</h5>

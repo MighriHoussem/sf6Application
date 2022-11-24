@@ -18,7 +18,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-#[Route('/person')]
+#[
+    Route('/person'),
+    IsGranted('ROLE_USER')
+]
 class PersonController extends AbstractController
 {
     #[Route('/', name: 'app_person')]

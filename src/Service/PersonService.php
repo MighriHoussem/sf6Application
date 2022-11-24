@@ -20,6 +20,7 @@ class PersonService
     public function addPerson(Person $person): bool
     {
         try {
+            //$this->security->isGranted('ROLE_ADMIN');
             if (!$person->getCreatedBy()) {
                 $person->setCreatedBy($this->security->getUser());
             }
