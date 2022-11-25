@@ -33,3 +33,12 @@ services:
         class: App\Service\MailerService
     app.pdf.service:
         class: App\Service\PDFService
+    app.person.lister:
+        class: App\EventListener\PersonListener
+        tags:
+            -  {
+                name: kernel.event_listener,
+                event: person.add,
+                method: onAddPerson,
+                priority: 100
+                }

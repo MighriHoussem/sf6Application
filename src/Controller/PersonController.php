@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Person;
+use App\Event\AddPersonEvent;
 use App\Form\PersonType;
 use App\Service\MailerService;
 use App\Service\PDFService;
@@ -11,11 +12,10 @@ use App\Service\UploaderService;
 use Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 #[
@@ -24,6 +24,11 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 ]
 class PersonController extends AbstractController
 {
+    public function __construct(private EventDispatcherInterface $eventDispatcherInterface)
+    {
+    }
+
+
     #[Route('/', name: 'app_person')]
     public function index(): Response
     {
@@ -100,7 +105,7 @@ class PersonController extends AbstractController
         PersonService $personService,
         UploaderService $uploaderService,
         MailerService $mailerService,
-        ?Person $person = null,
+        ?Person $person = null
     ): Response {
         if (!$person) {
             $person = new Person();
@@ -127,6 +132,10 @@ class PersonController extends AbstractController
             $personService->addPerson($person);
             $this->addFlash('success', "Person Added!");
             $mailerService->sendMail();
+            //dispatch person.add Event
+            $addPersonEvent = new AddPersonEvent($person);
+            $this->eventDispatcherInterface->dispatch($addPersonEvent, AddPersonEvent::ADD_PERSON_EVENT);
+
             return $this->redirectToRoute('person.add');
         } else {
             return $this->render('person/add-person.html.twig', ['form' => $form->createView()]);
